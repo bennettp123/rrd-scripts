@@ -1,0 +1,121 @@
+#!/usr/bin/perl
+use RRDs;
+
+# define location of rrdtool databases
+my $rrd = '/home/pi/.rrd/db/loadavg.rrd';
+# define location of images
+my $img = '/home/pi/.rrd/img';
+
+my $loadavg_data = '';
+open(my $fh, '<', '/proc/loadavg') or goto data_error;
+{
+	local $/;
+	$loadavg_data = <$fh>;
+}
+close($fh);
+chomp($loadavg_data);
+
+my $loadavg_1min;
+my $loadavg_5min;
+my $loadavg_10min;
+my $procs_run;
+my $procs_tot;
+if($loadavg_data =~ /^\s*([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+(\d+)\/(\d+)/) {
+	$loadavg_1min = $1;
+	$loadavg_5min = $2;
+	$loadavg_10min = $3;
+	$procs_run = $4;
+	$procs_tot = $5;
+} else {
+	goto regex_error;
+}
+
+# if loadavg database doesn't exist, create it
+if (! -e "$rrd") {
+  RRDs::create "$rrd",
+        "-s 60",
+	"DS:loadavg_1min:GAUGE:120:0:60000",
+	"DS:loadavg_5min:GAUGE:120:0:60000",
+	"DS:loadavg_10min:GAUGE:120:0:60000",
+	"DS:procs_running:GAUGE:120:0:60000",
+	"DS:procs_total:GAUGE:120:0:60000",
+	"RRA:AVERAGE:0.5:1:2880",
+	"RRA:AVERAGE:0.5:30:672",
+	"RRA:AVERAGE:0.5:120:732",
+	"RRA:AVERAGE:0.5:720:1460";
+}
+
+RRDs::update "$rrd",
+  "-t", "loadavg_1min:loadavg_5min:loadavg_10min:procs_running:procs_total",
+  "N:$loadavg_1min:$loadavg_5min:$loadavg_10min:$procs_run:$procs_tot";
+
+
+# Generate graphs
+CreateGraphs("day");
+CreateGraphs("week");
+CreateGraphs("month");
+CreateGraphs("year");
+
+#------------------------------------------------------------------------------
+sub CreateGraphs($){
+  my $period = shift;
+  
+  RRDs::graph "$img/loadavg-$period.png",
+		"-s -1$period",
+		"-t Load Average",
+		"--lazy",
+		"-h", "150", "-w", "700",
+		"-l 0",
+		"-a", "PNG",
+		"-v load average",
+		"DEF:loadavg_1=$rrd:loadavg_1min:AVERAGE",
+		#"DEF:loadavg_5=$rrd:loadavg_5min:AVERAGE",
+		#"DEF:loadavg_10=$rrd:loadavg_10min:AVERAGE",
+		"LINE2:loadavg_1#00AAAA:Load Avg  (1 min)",
+		"GPRINT:loadavg_1:MAX:  Max\\: %5.1lf %S",
+		"GPRINT:loadavg_1:AVERAGE: Avg\\: %5.1lf %S",
+		"GPRINT:loadavg_1:LAST: Current\\: %5.1lf %S\\n",
+		#"LINE2:loadavg_5#FF0000:Load Avg  (5 min)",
+		#"GPRINT:loadavg_5:MAX:  Max\\: %5.1lf %S",
+		#"GPRINT:loadavg_5:AVERAGE: Avg\\: %5.1lf %S",
+		#"GPRINT:loadavg_5:LAST: Current\\: %5.1lf %S\\n",
+		#"LINE2:loadavg_10#0022FF:Load Avg (10 min)",
+		#"GPRINT:loadavg_10:MAX:  Max\\: %5.1lf %S",
+		#"GPRINT:loadavg_10:AVERAGE: Avg\\: %5.1lf %S",
+		#"GPRINT:loadavg_10:LAST: Current\\: %5.1lf %S\\n",
+		"HRULE:0#000000";
+  if ($ERROR = RRDs::error) { 
+    print "$0: unable to generate $period graph: $ERROR\n"; 
+  }
+  
+  RRDs::graph "$img/procs-$period.png",
+		"-s -1$period",
+		"-t Processes",
+		"--lazy",
+		"-h", "150", "-w", "700",
+		"-l 0",
+		"-a", "PNG",
+		"-v process",
+		"DEF:procs_run=$rrd:procs_running:AVERAGE",
+		"DEF:procs_tot=$rrd:procs_total:AVERAGE",
+		"LINE2:procs_run#0022FF:Processes (running)",
+		"GPRINT:procs_run:MAX:  Max\\: %5.1lf %S",
+		"GPRINT:procs_run:AVERAGE: Avg\\: %5.1lf %S",
+		"GPRINT:procs_run:LAST: Current\\: %5.1lf %S\\n",
+		"LINE2:procs_tot#FF0000:Processes (total)  ",
+		"GPRINT:procs_tot:MAX:  Max\\: %5.1lf %S",
+		"GPRINT:procs_tot:AVERAGE: Avg\\: %5.1lf %S",
+		"GPRINT:procs_tot:LAST: Current\\: %5.1lf %S\\n",
+		"HRULE:0#000000";
+  if ($ERROR = RRDs::error) { 
+    print "$0: unable to generate $period graph: $ERROR\n"; 
+  }
+}
+
+exit 0;
+
+data_error:
+exit 1;
+
+regex_error:
+exit 2;
