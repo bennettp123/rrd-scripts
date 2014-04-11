@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 use RRDs;
+use File::HomeDir;
 
 # define location of rrdtool databases
-my $rrd = '~/.rrd/db/loadavg.rrd';
+my $rrd = File::HomeDir->my_home . '/.rrd/db/loadavg.rrd';
 # define location of images
-my $img = '~/.rrd/img';
+my $img = File::HomeDir->my_home . '/.rrd/img';
 
 my $loadavg_data = '';
 open(my $fh, '<', '/proc/loadavg') or goto data_error;

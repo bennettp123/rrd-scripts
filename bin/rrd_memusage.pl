@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 use RRDs;
+use File::HomeDir;
 
 # define location of rrdtool databases
-my $rrd = '~/.rrd/db/memusage.rrd';
+my $rrd = File::HomeDir->my_home . '/.rrd/db/memusage.rrd';
 # define location of images
-my $img = '~/.rrd/img';
+my $img = File::HomeDir->my_home . '/.rrd/img';
 
 my $mem_data = `free -b |grep cache:|cut -d":" -f2|awk '{print \$1}'`;
 chomp $mem_data;

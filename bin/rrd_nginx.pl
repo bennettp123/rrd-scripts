@@ -2,18 +2,19 @@
 use RRDs;
 use LWP::UserAgent;
 use File::stat;
+use File::HomeDir;
 use Time::localtime;
 
 # define location of rrdtool databases
-my $rrd = '~/.rrd/db/nginx.rrd';
+my $rrd = File::HomeDir->my_home . '/.rrd/db/nginx.rrd';
 # define location of images
-my $img = '~/.rrd/img';
+my $img = File::HomeDir->my_home . '/.rrd/img';
 # define your nginx stats URL
 my $URL = 'http://localhost/status';
 # nginx pidfile -- used to detect when server is restarted
 my $nginx_pidfile = '/var/run/nginx.pid';
 # stores the most recent nginx pid -- used to detect when the server is restarted
-my $nginx_last_pidfile = '~/.rrd/nginx_last_pid';
+my $nginx_last_pidfile = File::HomeDir->my_home . '/.rrd/nginx_last_pid';
 # true if nginx has been restarted
 my $nginx_has_been_restarted = 0;
 # the time when the server was last restarted
