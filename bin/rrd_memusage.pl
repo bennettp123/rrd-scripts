@@ -2,9 +2,9 @@
 use RRDs;
 
 # define location of rrdtool databases
-my $rrd = '/home/pi/.rrd/db/memusage.rrd';
+my $rrd = '~/.rrd/db/memusage.rrd';
 # define location of images
-my $img = '/home/pi/.rrd/img';
+my $img = '~/.rrd/img';
 
 my $mem_data = `free -b |grep cache:|cut -d":" -f2|awk '{print \$1}'`;
 chomp $mem_data;
