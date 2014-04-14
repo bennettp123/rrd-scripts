@@ -11,11 +11,11 @@ my $rrd = File::HomeDir->my_home . '/.rrd/db/apache2.rrd';
 my $img = File::HomeDir->my_home . '/.rrd/img';
 # define your apache stats URL
 my $URL = 'http://localhost/status/?auto';
-# nginx pidfile -- used to detect when server is restarted
+# apache2 pidfile -- used to detect when server is restarted
 my $apache2_pidfile = '/var/run/apache2.pid';
-# stores the most recent nginx pid -- used to detect when the server is restarted
+# stores the most recent pid -- used to detect when the server is restarted
 my $apache2_last_pidfile = File::HomeDir->my_home . '/.rrd/apache2_last_pid';
-# true if nginx has been restarted
+# true if server has been restarted
 my $apache2_has_been_restarted = 0;
 # the time when the server was last restarted
 my $server_restarted_time;
@@ -96,8 +96,8 @@ foreach (split(/\n/, $response->content)) {
 if (! -e "$rrd") {
   RRDs::create "$rrd",
         "-s 60",
-	"DS:requests_total:GAUGE:120:0:100000000",
-	"DS:kbytes_total:GAUGE:120:0:100000000",
+	"DS:requests:DERIVE:120:0:100000000",
+	"DS:kbytes:DERIVE:120:0:100000000",
 	"DS:cpuload:GAUGE:120:0:60000",
 	"DS:uptime:GAUGE:120:0:100000000",
 	"DS:req_persec:GAUGE:120:0:100000000",
@@ -112,17 +112,17 @@ if (! -e "$rrd") {
 }
 
 # insert values into rrd database
-if($nginx_has_been_restarted and defined($server_restarted_time)) {
-	printf STDERR "warning: detected nginx server restart; injecting 'U:U:U:U:U'.\n";
+if($apache2_has_been_restarted and defined($server_restarted_time)) {
+	printf STDERR "warning: detected server restart; injecting 'U:U:U:U:U'.\n";
 	RRDs::update "$rrd",
-	  "-t", "requests_total:kbytes_total:cpuload:uptime:req_persec:bytes_persec:bytes_prereq:busy_workers:idle_workers",
+	  "-t", "requests:kbytes:cpuload:uptime:req_persec:bytes_persec:bytes_prereq:busy_workers:idle_workers",
 	  "$server_restarted_time:U:U:U:U:U:U:U:U:U";
 	RRDs::update "$rrd",
-	  "-t", "requests_total:kbytes_total:cpuload:uptime:req_persec:bytes_persec:bytes_prereq:busy_workers:idle_workers",
+	  "-t", "requests:kbytes:cpuload:uptime:req_persec:bytes_persec:bytes_prereq:busy_workers:idle_workers",
 	  "N:U:U:U:U:U:U:U:U:U";
 } else {
 	RRDs::update "$rrd",
-	  "-t", "requests_total:kbytes_total:cpuload:uptime:req_persec:bytes_persec:bytes_prereq:busy_workers:idle_workers",
+	  "-t", "requests:kbytes:cpuload:uptime:req_persec:bytes_persec:bytes_prereq:busy_workers:idle_workers",
 	  "N:$accesses_total:$kbyes_total:$cpuload:$uptime:$req_persec:$bytes_persec:$bytes_perreq:$workers_busy:$workers_idle";
 }
 
@@ -144,7 +144,9 @@ sub CreateGraphs($){
 		"-l 0",
 		"-a", "PNG",
 		"-v requests/min",
-		"DEF:requests_persec=$rrd:req_persec:AVERAGE",
+		"--interlace",
+		"-X 0",
+		"DEF:requests_persec=$rrd:requests:AVERAGE",
 		"CDEF:requests=requests_persec,60,*",
 		"LINE2:requests#336600:Requests",
 		"GPRINT:requests:MAX:  Max\\: %5.1lf %S",
@@ -155,7 +157,25 @@ sub CreateGraphs($){
     print "$0: unable to generate $period graph: $ERROR\n"; 
   }
 
-  RRDs::graph "$img/connections-$period.png",
+  RRDs::graph "$img/bytes-$period.png",
+  		"-s -1$period",
+		"-t KBytes on apache2",
+		"--lazy",
+		"-h", "150", "-w", "700",
+		"-l 0",
+		"-a", "PNG",
+		"-v bytes/sec",
+		"--interlace",
+		"-X 0",
+		"DEF:kbytes_persec=$rrd:kbytes:AVERAGE",
+		"CDEF:bytes_persec=kbytes_persec,1024,*",
+		"LINE2:bytes_persec#2F6DBD:Bytes/sec",
+		"GPRINT:bytes_persec:MAX:  Max\\: %5.1lf %S",
+		"GPRINT:bytes_persec:AVERAGE: Avg\\: %5.1lf %S",
+		"GPRINT:bytes_persec:LAST: Current\\: %5.1lf %S\\n",
+		"HRULE:0#000000";
+
+  RRDs::graph "$img/workers-$period.png",
 		"-s -1$period",
 		"-t Workers on apache2",
 		"--lazy",
@@ -163,6 +183,8 @@ sub CreateGraphs($){
 		"-l 0",
 		"-a", "PNG",
 		"-v workers",
+		"--interlace",
+		"-X 0",
 		#"DEF:total_persec=$rrd:total:AVERAGE",
 		#"DEF:reading_persec=$rrd:reading:AVERAGE",
 		#"DEF:writing_persec=$rrd:writing:AVERAGE",
