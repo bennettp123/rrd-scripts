@@ -169,7 +169,7 @@ sub CreateGraphs($){
 		"-X 0",
 		"DEF:kbytes_persec=$rrd:kbytes:AVERAGE",
 		"CDEF:bytes_persec=kbytes_persec,1024,*",
-		"LINE2:bytes_persec#2F6DBD:Bytes/sec",
+		"LINE2:bytes_persec#ED5E3E:Bytes/sec",
 		"GPRINT:bytes_persec:MAX:  Max\\: %5.1lf %S",
 		"GPRINT:bytes_persec:AVERAGE: Avg\\: %5.1lf %S",
 		"GPRINT:bytes_persec:LAST: Current\\: %5.1lf %S\\n",
