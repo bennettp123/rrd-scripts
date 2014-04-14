@@ -2,3 +2,4 @@
 /img/*.png
 /nginx_last_pid
 /apache2_last_pid
+/html/index.html
