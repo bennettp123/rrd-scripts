@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nginx status</title>
+<style>
+  img {
+    display: block;
+  }
+</style>
+</head>
+<body>
+

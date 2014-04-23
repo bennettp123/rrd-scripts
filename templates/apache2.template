@@ -1,0 +1,16 @@
+<h3>Requests</h3>
+<img src="/ngstatus/img/requests-day.png"/>
+<img src="/ngstatus/img/requests-week.png"/>
+<img src="/ngstatus/img/requests-month.png"/>
+<img src="/ngstatus/img/requests-year.png"/>
+<h3>Workers</h3>
+<img src="/ngstatus/img/workers-day.png"/>
+<img src="/ngstatus/img/workers-week.png"/>
+<img src="/ngstatus/img/workers-month.png"/>
+<img src="/ngstatus/img/workers-year.png"/>
+<h3>Bytes/sec</h3>
+<img src="/ngstatus/img/bytes-day.png"/>
+<img src="/ngstatus/img/bytes-week.png"/>
+<img src="/ngstatus/img/bytes-month.png"/>
+<img src="/ngstatus/img/bytes-year.png"/>
+

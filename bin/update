@@ -1,0 +1,72 @@
+#!/bin/bash
+
+MYDIR="$(dirname "$0")"
+SCRIPTDIR="$MYDIR/enabled"
+TEMPLDIR="$MYDIR/../templates"
+
+OUT_HTML="$MYDIR/../html/index.html"
+OUT_TMP="$( mktemp "$(dirname "$OUT_HTML")/.$(basename "$OUT_HTML").XXXXXXXX" )"
+
+if [ ! -x "$SCRIPTDIR" ]; then
+	echo "Script dir not found!" >&2
+	exit 1
+fi
+
+if [ ! -x "$TEMPLDIR" ]; then
+	echo "Template dir not found!" >&2
+	exit 1
+fi
+
+retval=0
+
+cat "$TEMPLDIR/HEAD.template" >"$OUT_TMP"
+retval1=$?
+retval=$(( $retval + $retval1 ))
+
+FILES="$SCRIPTDIR"/*
+
+for f in $FILES; do
+	retval1=0
+	retval2=0
+	REALNAME="$( basename "$(readlink -f "$f")" )"
+	TEMPLATE="$TEMPLDIR/$REALNAME.template"
+	[ -r "$TEMPLATE" ] || echo "Warning: template $TEMPLATE not readable." >&2
+
+	"$f"
+	retval1=$?
+
+	cat "$TEMPLATE" >>"$OUT_TMP"
+	retval2=$?
+
+	retval=$(( $retval + $retval1 + $retval2 ))
+done
+
+cat "$TEMPLDIR/TAIL.template" >>"$OUT_TMP"
+retval1=$?
+retval=$(( $retval + $retval1 ))
+
+#chown --reference="$OUT_HTML" "$OUT_TMP"
+retval1=$?
+retval=$(( $retval + $retval1 ))
+
+if [ -e "$OUT_HTML" ]; then
+	chmod --reference="$OUT_HTML" "$OUT_TMP"
+	retval1=$?
+	retval=$(( $retval + $retval1 ))
+else
+	chmod 644 "$OUT_TMP"
+	retval1=$?
+	retval=$(( $retval + $retval1 ))
+fi
+
+if [ "$retval" -eq "0" ]; then
+	mv -f "$OUT_TMP" "$OUT_HTML"
+	retval1=$?
+	retval=$(( $retval + $retval1 ))
+fi
+
+rm -f "$OUT_TMP"
+retval1=$?
+retval=$(( $retval + $retval1 ))
+
+exit $retval
