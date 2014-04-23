@@ -17,13 +17,17 @@ if [ ! -x "$TEMPLDIR" ]; then
 	exit 1
 fi
 
+FILES="$SCRIPTDIR"/*
+if [ -z "$FILES" ]; then
+	echo "Warning; no enabled scripts found" >&2
+	exit 1
+fi
+
 retval=0
 
 cat "$TEMPLDIR/HEAD.template" >"$OUT_TMP"
 retval1=$?
 retval=$(( $retval + $retval1 ))
-
-FILES="$SCRIPTDIR"/*
 
 for f in $FILES; do
 	retval1=0
@@ -46,8 +50,8 @@ retval1=$?
 retval=$(( $retval + $retval1 ))
 
 #chown --reference="$OUT_HTML" "$OUT_TMP"
-retval1=$?
-retval=$(( $retval + $retval1 ))
+#retval1=$?
+#retval=$(( $retval + $retval1 ))
 
 if [ -e "$OUT_HTML" ]; then
 	chmod --reference="$OUT_HTML" "$OUT_TMP"

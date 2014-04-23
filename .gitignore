@@ -1,5 +1,10 @@
-/db/*.rrd
-/img/*.png
 /nginx_last_pid
 /apache2_last_pid
-/html/index.html
+/db/*
+/img/*
+/html/*
+/bin/enabled/*
+!/db/.empty
+!/img/.empty
+!/html/.empty
+!/bin/enabled/.empty
