@@ -1,6 +1,6 @@
 # rrd-scripts
 
-RRD scripts: scripts to create graphs.
+	RRD scripts: scripts to create graphs.
 
 Create graphs for maximum visualization.
 
