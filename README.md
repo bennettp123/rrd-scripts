@@ -1,10 +1,10 @@
-rrd-scripts
-===========
+# rrd-scripts
 
-RRD scripts scripts to create graphs
+RRD scripts: scripts to create graphs.
 
-Usage:
-======
+Create graphs for maximum visualization.
+
+### Usage:
 
 	/path/to/.rrd/bin/update
 
