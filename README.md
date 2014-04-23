@@ -6,7 +6,7 @@ Create graphs for maximum visualization.
 
 ### Usage:
 
-	/path/to/.rrd/bin/update
+	bin/update
 
 Put it in your crontab for maximum automation.
 
