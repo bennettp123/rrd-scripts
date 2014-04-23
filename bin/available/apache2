@@ -136,7 +136,7 @@ CreateGraphs("year");
 sub CreateGraphs($){
   my $period = shift;
   
-  RRDs::graph "$img/requests-$period.png",
+  RRDs::graph "$img/aprequests-$period.png",
 		"-s -1$period",
 		"-t Requests on apache2",
 		"--lazy",
@@ -157,7 +157,7 @@ sub CreateGraphs($){
     print "$0: unable to generate $period graph: $ERROR\n"; 
   }
 
-  RRDs::graph "$img/bytes-$period.png",
+  RRDs::graph "$img/apbytes-$period.png",
   		"-s -1$period",
 		"-t KBytes on apache2",
 		"--lazy",
@@ -175,7 +175,7 @@ sub CreateGraphs($){
 		"GPRINT:bytes_persec:LAST: Current\\: %5.1lf %S\\n",
 		"HRULE:0#000000";
 
-  RRDs::graph "$img/workers-$period.png",
+  RRDs::graph "$img/apworkers-$period.png",
 		"-s -1$period",
 		"-t Workers on apache2",
 		"--lazy",

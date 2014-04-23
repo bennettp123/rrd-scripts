@@ -1,11 +1,11 @@
-<h3>Requests</h3>
-<img src="/ngstatus/img/requests-day.png"/>
-<img src="/ngstatus/img/requests-week.png"/>
-<img src="/ngstatus/img/requests-month.png"/>
-<img src="/ngstatus/img/requests-year.png"/>
-<h3>Connections</h3>
-<img src="/ngstatus/img/connections-day.png"/>
-<img src="/ngstatus/img/connections-week.png"/>
-<img src="/ngstatus/img/connections-month.png"/>
-<img src="/ngstatus/img/connections-year.png"/>
+<h3>Nginx Requests</h3>
+<img src="/ngstatus/img/ngrequests-day.png"/>
+<img src="/ngstatus/img/ngrequests-week.png"/>
+<img src="/ngstatus/img/ngrequests-month.png"/>
+<img src="/ngstatus/img/ngrequests-year.png"/>
+<h3>Nginx Connections</h3>
+<img src="/ngstatus/img/ngconnections-day.png"/>
+<img src="/ngstatus/img/ngconnections-week.png"/>
+<img src="/ngstatus/img/ngconnections-month.png"/>
+<img src="/ngstatus/img/ngconnections-year.png"/>
 

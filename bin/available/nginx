@@ -125,7 +125,7 @@ CreateGraphs("year");
 sub CreateGraphs($){
   my $period = shift;
   
-  RRDs::graph "$img/requests-$period.png",
+  RRDs::graph "$img/ngrequests-$period.png",
 		"-s -1$period",
 		"-t Requests on nginx",
 		"--lazy",
@@ -146,7 +146,7 @@ sub CreateGraphs($){
     print "$0: unable to generate $period graph: $ERROR\n"; 
   }
 
-  RRDs::graph "$img/connections-$period.png",
+  RRDs::graph "$img/ngconnections-$period.png",
 		"-s -1$period",
 		"-t Connections on nginx",
 		"--lazy",
