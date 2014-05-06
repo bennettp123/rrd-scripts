@@ -38,7 +38,6 @@ sub CreateGraphs($){
   RRDs::graph "$img/memusage-$period.png",
 		"-s -1$period",
 		"-t Memory Use",
-		"--lazy",
 		"-h", "150", "-w", "700",
 		"-l 0",
 		"-a", "PNG",
