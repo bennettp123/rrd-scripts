@@ -4,6 +4,7 @@
 /img/*
 /html/*
 /bin/enabled/*
+*.NFSLock
 !/db/.empty
 !/img/.empty
 !/html/.empty

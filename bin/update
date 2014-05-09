@@ -1,4 +1,4 @@
-#!/bin/bas
+#!/bin/bash
 
 MYDIR="$(dirname "$0")"
 SCRIPTDIR="$MYDIR/enabled"
@@ -30,6 +30,9 @@ retval1=$?
 retval=$(( $retval + $retval1 ))
 
 for f in $FILES; do
+	if [[ "$f" == *.NFSLock ]]; then
+		continue
+	fi
 	retval1=0
 	retval2=0
 	REALNAME="$( basename "$(readlink -f "$f")" )"
