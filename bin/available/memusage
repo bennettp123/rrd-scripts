@@ -1,4 +1,11 @@
 #!/usr/bin/perl
+use Fcntl qw(LOCK_EX LOCK_NB);
+use File::NFSLock;
+
+# Try to get an exclusive lock on myself.
+my $lock = File::NFSLock->new($0, LOCK_EX|LOCK_NB);
+die "$0 is already running!\n" unless $lock;
+
 use RRDs;
 use File::HomeDir;
 
