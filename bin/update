@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bas
 
 MYDIR="$(dirname "$0")"
 SCRIPTDIR="$MYDIR/enabled"
@@ -36,7 +36,7 @@ for f in $FILES; do
 	TEMPLATE="$TEMPLDIR/$REALNAME.template"
 	[ -r "$TEMPLATE" ] || echo "Warning: template $TEMPLATE not readable." >&2
 
-	"$f"
+	"$f" & # run them concurrently 
 	retval1=$?
 
 	cat "$TEMPLATE" >>"$OUT_TMP"
