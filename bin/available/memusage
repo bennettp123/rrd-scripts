@@ -50,6 +50,7 @@ sub CreateGraphs($){
 		"-a", "PNG",
 		"-v memory use",
 		"--interlace",
+		"--lazy",
 		"DEF:usage=$rrd:memory_usage:AVERAGE",
 		"VDEF:min=usage,MINIMUM",
 		"VDEF:avg=usage,AVERAGE",
