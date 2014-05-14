@@ -4,7 +4,7 @@ use File::NFSLock;
 
 # Try to get an exclusive lock on myself.
 my $lock = File::NFSLock->new($0, LOCK_EX|LOCK_NB);
-die "$0 is already running!\n" unless $lock;
+die unless $lock;
 
 use RRDs;
 use File::HomeDir;
@@ -13,50 +13,6 @@ use File::HomeDir;
 my $rrd = File::HomeDir->my_home . '/.rrd/db/loadavg.rrd';
 # define location of images
 my $img = File::HomeDir->my_home . '/.rrd/img';
-
-my $loadavg_data = '';
-open(my $fh, '<', '/proc/loadavg') or goto data_error;
-{
-	local $/;
-	$loadavg_data = <$fh>;
-}
-close($fh);
-chomp($loadavg_data);
-
-my $loadavg_1min;
-my $loadavg_5min;
-my $loadavg_10min;
-my $procs_run;
-my $procs_tot;
-if($loadavg_data =~ /^\s*([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\s+(\d+)\/(\d+)/) {
-	$loadavg_1min = $1;
-	$loadavg_5min = $2;
-	$loadavg_10min = $3;
-	$procs_run = $4;
-	$procs_tot = $5;
-} else {
-	goto regex_error;
-}
-
-# if loadavg database doesn't exist, create it
-if (! -e "$rrd") {
-  RRDs::create "$rrd",
-        "-s 60",
-	"DS:loadavg_1min:GAUGE:120:0:60000",
-	"DS:loadavg_5min:GAUGE:120:0:60000",
-	"DS:loadavg_10min:GAUGE:120:0:60000",
-	"DS:procs_running:GAUGE:120:0:60000",
-	"DS:procs_total:GAUGE:120:0:60000",
-	"RRA:AVERAGE:0.5:1:2880",
-	"RRA:AVERAGE:0.5:30:672",
-	"RRA:AVERAGE:0.5:120:732",
-	"RRA:AVERAGE:0.5:720:1460";
-}
-
-RRDs::update "$rrd",
-  "-t", "loadavg_1min:loadavg_5min:loadavg_10min:procs_running:procs_total",
-  "N:$loadavg_1min:$loadavg_5min:$loadavg_10min:$procs_run:$procs_tot";
-
 
 # Generate graphs
 CreateGraphs("day");

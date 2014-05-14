@@ -1,0 +1,118 @@
+#!/usr/bin/perl
+use Fcntl qw(LOCK_EX LOCK_NB);
+use File::NFSLock;
+
+# Try to get an exclusive lock on myself.
+my $lock = File::NFSLock->new($0, LOCK_EX|LOCK_NB);
+die unless $lock;
+
+use RRDs;
+use LWP::UserAgent;
+use File::stat;
+use File::HomeDir;
+use Time::localtime;
+
+# define location of rrdtool databases
+my $rrd = File::HomeDir->my_home . '/.rrd/db/apache2.rrd';
+# define location of images
+my $img = File::HomeDir->my_home . '/.rrd/img';
+# define your apache stats URL
+my $URL = 'http://localhost/status/?auto';
+# apache2 pidfile -- used to detect when server is restarted
+my $apache2_pidfile = '/var/run/apache2.pid';
+# stores the most recent pid -- used to detect when the server is restarted
+my $apache2_last_pidfile = File::HomeDir->my_home . '/.rrd/apache2_last_pid';
+# true if server has been restarted
+my $apache2_has_been_restarted = 0;
+# the time when the server was last restarted
+my $server_restarted_time;
+
+# Generate graphs
+CreateGraphs("day");
+CreateGraphs("week");
+CreateGraphs("month");
+CreateGraphs("year");
+
+#------------------------------------------------------------------------------
+sub CreateGraphs($){
+  my $period = shift;
+  
+  RRDs::graph "$img/aprequests-$period.png",
+		"-s -1$period",
+		"-t Requests on apache2",
+		"-h", "150", "-w", "700",
+		"-l 0",
+		"-a", "PNG",
+		"-v requests/min",
+		"--interlace",
+		"-X 0",
+		"--lazy",
+		"DEF:requests_persec=$rrd:requests:AVERAGE",
+		"CDEF:requests=requests_persec,60,*",
+		"LINE2:requests#336600:Requests",
+		"GPRINT:requests:MAX:  Max\\: %5.1lf %S",
+		"GPRINT:requests:AVERAGE: Avg\\: %5.1lf %S",
+		"GPRINT:requests:LAST: Current\\: %5.1lf %S\\n",
+		"HRULE:0#000000";
+  if ($ERROR = RRDs::error) { 
+    print "$0: unable to generate $period graph: $ERROR\n"; 
+  }
+
+  RRDs::graph "$img/apbytes-$period.png",
+  		"-s -1$period",
+		"-t KBytes on apache2",
+		"-h", "150", "-w", "700",
+		"-l 0",
+		"-a", "PNG",
+		"-v bytes/sec",
+		"--interlace",
+		"-X 0",
+		"--lazy",
+		"DEF:kbytes_persec=$rrd:kbytes:AVERAGE",
+		"CDEF:bytes_persec=kbytes_persec,1024,*",
+		"LINE2:bytes_persec#ED5E3E:Bytes/sec",
+		"GPRINT:bytes_persec:MAX:  Max\\: %5.1lf %S",
+		"GPRINT:bytes_persec:AVERAGE: Avg\\: %5.1lf %S",
+		"GPRINT:bytes_persec:LAST: Current\\: %5.1lf %S\\n",
+		"HRULE:0#000000";
+
+  RRDs::graph "$img/apworkers-$period.png",
+		"-s -1$period",
+		"-t Workers on apache2",
+		"-h", "150", "-w", "700",
+		"-l 0",
+		"-a", "PNG",
+		"-v workers",
+		"--interlace",
+		"-X 0",
+		"--lazy",
+		#"DEF:total_persec=$rrd:total:AVERAGE",
+		#"DEF:reading_persec=$rrd:reading:AVERAGE",
+		#"DEF:writing_persec=$rrd:writing:AVERAGE",
+		#"DEF:waiting_persec=$rrd:waiting:AVERAGE",
+
+		#"CDEF:total=total_persec,60,*",
+		#"CDEF:reading=reading_persec,60,*",
+		#"CDEF:writing=writing_persec,60,*",
+		#"CDEF:waiting=waiting_persec,60,*",
+
+		"DEF:busy=$rrd:busy_workers:AVERAGE",
+		"DEF:idle=$rrd:idle_workers:AVERAGE",
+
+		"LINE2:busy#22FF22:Busy",
+		"GPRINT:busy:LAST:   Current\\: %5.1lf %S",
+		"GPRINT:busy:MIN:  Min\\: %5.1lf %S",
+		"GPRINT:busy:AVERAGE: Avg\\: %5.1lf %S",
+		"GPRINT:busy:MAX:  Max\\: %5.1lf %S\\n",
+		
+		"LINE2:idle#0022FF:Idle  ",
+		"GPRINT:idle:LAST: Current\\: %5.1lf %S",
+		"GPRINT:idle:MIN:  Min\\: %5.1lf %S",
+		"GPRINT:idle:AVERAGE: Avg\\: %5.1lf %S",
+		"GPRINT:idle:MAX:  Max\\: %5.1lf %S\\n",
+		
+		"HRULE:0#000000";
+  if ($ERROR = RRDs::error) { 
+    print "$0: unable to generate $period graph: $ERROR\n"; 
+  }
+}

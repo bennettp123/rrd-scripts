@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+use Fcntl qw(LOCK_EX LOCK_NB);
+use File::NFSLock;
+
+# Try to get an exclusive lock on myself.
+my $lock = File::NFSLock->new($0, LOCK_EX|LOCK_NB);
+die "$0 is already running!\n" unless $lock;
+
+use RRDs;
+use File::HomeDir;
+
+# define location of rrdtool databases
+my $rrd = File::HomeDir->my_home . '/.rrd/db/memusage.rrd';
+# define location of images
+my $img = File::HomeDir->my_home . '/.rrd/img';
+
+my $mem_data = `free -b |grep cache:|cut -d":" -f2|awk '{print \$1}'`;
+chomp $mem_data;
+
+# if loadavg database doesn't exist, create it
+if (! -e "$rrd") {
+  RRDs::create "$rrd",
+        "-s 60",
+	"DS:memory_usage:GAUGE:120:0:2147483647",
+	"RRA:AVERAGE:0.5:1:2880",
+	"RRA:AVERAGE:0.5:30:672",
+	"RRA:AVERAGE:0.5:120:732",
+	"RRA:AVERAGE:0.5:720:1460";
+}
+
+RRDs::update "$rrd",
+  "-t", "memory_usage",
+  "N:$mem_data";
+

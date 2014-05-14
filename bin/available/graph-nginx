@@ -4,7 +4,7 @@ use File::NFSLock;
 
 # Try to get an exclusive lock on myself.
 my $lock = File::NFSLock->new($0, LOCK_EX|LOCK_NB);
-die "$0 is already running!\n" unless $lock;
+die unless $lock;
 
 use RRDs;
 use LWP::UserAgent;
@@ -26,101 +26,6 @@ my $nginx_last_pidfile = File::HomeDir->my_home . '/.rrd/nginx_last_pid';
 my $nginx_has_been_restarted = 0;
 # the time when the server was last restarted
 my $server_restarted_time;
-
-my $nginx_current_pid;
-open(my $fh, '<', $nginx_pidfile) or goto missing_pid;
-{
-	local $/;
-	$nginx_current_pid = <$fh>;
-}
-close($fh);
-chomp $nginx_current_pid;
-$nginx_current_pid =~ /(\d+)/;
-$nginx_current_pid = $1;
-
-my $nginx_last_pid;
-open(my $fh, '<', $nginx_last_pidfile) or goto missing_pid;
-$server_restarted_time = stat($fh)->mtime;
-{
-	local $/;
-	$nginx_last_pid = <$fh>;
-}
-close($fh);
-chomp $nginx_last_pid;
-$nginx_last_pid =~ /(\d+)/;
-$nginx_last_pid = $1;
-
-if($nginx_current_pid =~ /^\d+$/ and $nginx_last_pid =~ /^\d+$/) {
-	if($nginx_current_pid != $nginx_last_pid) {
-		$nginx_has_been_restarted = 'yes';
-	}
-}
-
-missing_pid:
-# continue silently.:)
-
-if($nginx_current_pid =~ /^(\d+)$/) {
-	open(my $fh, '>', $nginx_last_pidfile) or do {
-		print STDERR "warning: couldn't write pidfile $nginx_last_pidfile: $!\n";
-		goto couldnt_write_pidfile;
-	};
-	print $fh "$1\n";
-	close($fh);
-}
-
-couldnt_write_pidfile:
-# continue silently.:)
-
-my $ua = LWP::UserAgent->new(timeout => 30);
-my $response = $ua->request(HTTP::Request->new('GET', $URL));
-
-my $requests = 0;
-my $total    = 0;
-my $reading  = 0;
-my $writing  = 0;
-my $waiting  = 0;
-
-foreach (split(/\n/, $response->content)) {
-  $total = $1 if (/^Active connections:\s+(\d+)/);
-  if (/^Reading:\s+(\d+).*Writing:\s+(\d+).*Waiting:\s+(\d+)/) {
-    $reading = $1;
-    $writing = $2;
-    $waiting = $3;
-  }
-  $requests = $3 if (/^\s+(\d+)\s+(\d+)\s+(\d+)/);
-}
-
-#print "RQ:$requests; TT:$total; RD:$reading; WR:$writing; WA:$waiting\n";
-
-# if rrdtool database doesn't exist, create it
-if (! -e "$rrd") {
-  RRDs::create "$rrd",
-        "-s 60",
-	"DS:requests:DERIVE:120:0:100000000",
-	"DS:total:GAUGE:120:0:60000",
-	"DS:reading:GAUGE:120:0:60000",
-	"DS:writing:GAUGE:120:0:60000",
-	"DS:waiting:GAUGE:120:0:60000",
-	"RRA:AVERAGE:0.5:1:2880",
-	"RRA:AVERAGE:0.5:30:672",
-	"RRA:AVERAGE:0.5:120:732",
-	"RRA:AVERAGE:0.5:720:1460";
-}
-
-# insert values into rrd database
-if($nginx_has_been_restarted and defined($server_restarted_time)) {
-	printf STDERR "warning: detected nginx server restart; injecting 'U:U:U:U:U'.\n";
-	RRDs::update "$rrd",
-	  "-t", "requests:total:reading:writing:waiting",
-	  "$server_restarted_time:U:U:U:U:U";
-	RRDs::update "$rrd",
-	  "-t", "requests:total:reading:writing:waiting",
-	  "N:U:U:U:U:U";
-} else {
-	RRDs::update "$rrd",
-	  "-t", "requests:total:reading:writing:waiting",
-	  "N:$requests:$total:$reading:$writing:$waiting";
-}
 
 # Generate graphs
 CreateGraphs("day");
