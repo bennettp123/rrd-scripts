@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+use Fcntl qw(LOCK_EX LOCK_NB);
+use File::NFSLock;
+
+# Try to get an exclusive lock on myself.
+my $lock = File::NFSLock->new($0, LOCK_EX|LOCK_NB);
+die "$0 is already running!\n" unless $lock;
+
+use RRDs;
+use File::HomeDir;
+
+# define location of rrdtool databases
+my $rrd = File::HomeDir->my_home . '/.rrd/db/entropy_avail.rrd';
+# define location of images
+my $img = File::HomeDir->my_home . '/.rrd/img';
+
+if (! -e "/proc/sys/kernel/random/entropy_avail") {
+	die "no entropy source available";
+}
+
+my $entropy_avail;
+
+open DATA, "/proc/sys/kernel/random/entropy_avail" or die "$0: file not found: /proc/sys/kernel/random/entropy_avail";
+while (<DATA>) {
+	chomp;
+	$entropy_avail = $_;
+	break;
+}
+close DATA;
+
+# if loadavg database doesn't exist, create it
+if (! -e "$rrd") {
+  RRDs::create "$rrd",
+        "-s 60",
+	"DS:entropy_avail:GAUGE:120:0:2147483647",
+	"RRA:AVERAGE:0.5:1:2880",
+	"RRA:AVERAGE:0.5:30:672",
+	"RRA:AVERAGE:0.5:120:732",
+	"RRA:AVERAGE:0.5:720:1460";
+}
+
+RRDs::update "$rrd",
+  "-t", "entropy_avail",
+  "N:$entropy_avail";
+
+# Generate graphs
+CreateGraphs("day");
+CreateGraphs("week");
+CreateGraphs("month");
+CreateGraphs("year");
+
+#------------------------------------------------------------------------------
+sub CreateGraphs($){
+  my $period = shift;
+  
+  RRDs::graph "$img/entropy_avail-$period.png",
+		"-s -1$period",
+		"-t Available Entropy",
+		"-h", "150", "-w", "700",
+		"-l 0",
+		"-a", "PNG",
+		"-v", "entropy available",
+		"--interlace",
+		"--lazy",
+		"DEF:entropy=$rrd:entropy_avail:AVERAGE",
+		"VDEF:min=entropy,MINIMUM",
+		"VDEF:avg=entropy,AVERAGE",
+		"VDEF:max=entropy,MAXIMUM",
+		"VDEF:cur=entropy,LAST",
+		"COMMENT: \\l",
+		"COMMENT:               ",
+		"COMMENT:Minimum    ",
+		"COMMENT:Maximum    ",
+		"COMMENT:Average    ",
+		"COMMENT:Current    \\l",
+		"COMMENT:   ",
+		"LINE2:entropy#F47200",
+		"GPRINT:min:%5.1lf %sB   ",
+		"GPRINT:max:%5.1lf %sB   ",
+		"GPRINT:avg:%5.1lf %sB   ",
+		"GPRINT:cur:%5.1lf %sB   \\l";
+  if ($ERROR = RRDs::error) { 
+    print "$0: unable to generate $period graph: $ERROR\n"; 
+  }
+}
+
+exit 0;
+
+data_error:
+exit 1;
+
+regex_error:
+exit 2;
