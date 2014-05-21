@@ -67,22 +67,17 @@ sub CreateGraphs($){
 		"VDEF:avg=entropy,AVERAGE",
 		"VDEF:max=entropy,MAXIMUM",
 		"VDEF:cur=entropy,LAST",
-		"COMMENT: \\l",
-		"COMMENT:               ",
-		"COMMENT:Minimum    ",
-		"COMMENT:Maximum    ",
-		"COMMENT:Average    ",
-		"COMMENT:Current    \\l",
-		"COMMENT:   ",
 		"LINE2:entropy#F47200",
-		"GPRINT:min:%5.1lf %sB   ",
-		"GPRINT:max:%5.1lf %sB   ",
-		"GPRINT:avg:%5.1lf %sB   ",
-		"GPRINT:cur:%5.1lf %sB   \\l";
+		"GPRINT:min:  Min\\: %8.1lf %S",
+		"GPRINT:max:  Max\\: %8.1lf %S",
+		"GPRINT:avg:  Average\\: %8.1lf %S",
+		"GPRINT:cur:  Current\\: %8.1lf %S\\l";
   if ($ERROR = RRDs::error) { 
     print "$0: unable to generate $period graph: $ERROR\n"; 
   }
 }
+
+#GPRINT:procs_run:MAX:  Max\\: %5.1lf %S",
 
 exit 0;
 
