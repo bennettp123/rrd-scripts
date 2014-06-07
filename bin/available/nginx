@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 use Fcntl qw(LOCK_EX LOCK_NB);
-use File::NFSLock;
+use Fcntl qw(:flock);
 
 # Try to get an exclusive lock on myself.
-my $lock = File::NFSLock->new($0, LOCK_EX|LOCK_NB);
-die "$0 is already running!\n" unless $lock;
+unless (flock(DATA, LOCK_EX|LOCK_NB)) {
+	die "$0 is already running!\n"
+}
 
 use RRDs;
 use LWP::UserAgent;
@@ -207,3 +208,7 @@ sub CreateGraphs($){
     print "$0: unable to generate $period graph: $ERROR\n"; 
   }
 }
+
+__DATA__
+This exists so flock() code above works.
+DO NOT REMOVE THIS DATA SECTION
