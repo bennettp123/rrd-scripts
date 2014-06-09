@@ -1,7 +1,7 @@
 <h3>Available Entropy</h3>
 <p><small>If it falls under 100 for more than a few seconds, then you have a problem.</small></p>
-<img src="/ngstatus/img/entropy_avail-day.png"/>
-<img src="/ngstatus/img/entropy_avail-week.png"/>
-<img src="/ngstatus/img/entropy_avail-month.png"/>
-<img src="/ngstatus/img/entropy_avail-year.png"/>
+<img src="/ngstatus/img/entropy_avail-day.png" width="797" height="223"/>
+<img src="/ngstatus/img/entropy_avail-week.png" width="797" height="223"/>
+<img src="/ngstatus/img/entropy_avail-month.png" width="797" height="223"/>
+<img src="/ngstatus/img/entropy_avail-year.png" width="797" height="223"/>
 

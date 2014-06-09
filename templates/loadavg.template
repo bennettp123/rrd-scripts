@@ -1,11 +1,11 @@
 <h3>Load Average</h3>
-<img src="/ngstatus/img/loadavg-day.png"/>
-<img src="/ngstatus/img/loadavg-week.png"/>
-<img src="/ngstatus/img/loadavg-month.png"/>
-<img src="/ngstatus/img/loadavg-year.png"/>
+<img src="/ngstatus/img/loadavg-day.png" width="797" height="223"/>
+<img src="/ngstatus/img/loadavg-week.png" width="797" height="223"/>
+<img src="/ngstatus/img/loadavg-month.png" width="797" height="223"/>
+<img src="/ngstatus/img/loadavg-year.png" width="797" height="223"/>
 <h3>Running Processes</h3>
-<img src="/ngstatus/img/procs-day.png"/>
-<img src="/ngstatus/img/procs-week.png"/>
-<img src="/ngstatus/img/procs-month.png"/>
-<img src="/ngstatus/img/procs-year.png"/>
+<img src="/ngstatus/img/procs-day.png" width="797" height="237"/>
+<img src="/ngstatus/img/procs-week.png" width="797" height="237"/>
+<img src="/ngstatus/img/procs-month.png" width="797" height="237"/>
+<img src="/ngstatus/img/procs-year.png" width="797" height="237"/>
 

@@ -1,16 +1,16 @@
 <h3>Apache Requests</h3>
-<img src="/ngstatus/img/aprequests-day.png"/>
-<img src="/ngstatus/img/aprequests-week.png"/>
-<img src="/ngstatus/img/aprequests-month.png"/>
-<img src="/ngstatus/img/aprequests-year.png"/>
+<img src="/ngstatus/img/aprequests-day.png" width="797" height="223"/>
+<img src="/ngstatus/img/aprequests-week.png" width="797" height="223"/>
+<img src="/ngstatus/img/aprequests-month.png" width="797" height="223"/>
+<img src="/ngstatus/img/aprequests-year.png" width="797" height="223"/>
 <h3>Apache Workers</h3>
-<img src="/ngstatus/img/apworkers-day.png"/>
-<img src="/ngstatus/img/apworkers-week.png"/>
-<img src="/ngstatus/img/apworkers-month.png"/>
-<img src="/ngstatus/img/apworkers-year.png"/>
+<img src="/ngstatus/img/apworkers-day.png" width="797" height="237"/>
+<img src="/ngstatus/img/apworkers-week.png" width="797" height="237"/>
+<img src="/ngstatus/img/apworkers-month.png" width="797" height="237"/>
+<img src="/ngstatus/img/apworkers-year.png" width="797" height="237"/>
 <h3>Apache Bytes/sec</h3>
-<img src="/ngstatus/img/apbytes-day.png"/>
-<img src="/ngstatus/img/apbytes-week.png"/>
-<img src="/ngstatus/img/apbytes-month.png"/>
-<img src="/ngstatus/img/apbytes-year.png"/>
+<img src="/ngstatus/img/apbytes-day.png" width="797" height="223"/>
+<img src="/ngstatus/img/apbytes-week.png" width="797" height="223"/>
+<img src="/ngstatus/img/apbytes-month.png" width="797" height="223"/>
+<img src="/ngstatus/img/apbytes-year.png" width="797" height="223"/>
 
