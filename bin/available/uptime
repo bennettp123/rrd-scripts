@@ -74,7 +74,7 @@ sub CreateGraphs($){
 		#"DEF:uptime_5=$rrd:uptime_5min:AVERAGE",
 		#"DEF:uptime_10=$rrd:uptime_10min:AVERAGE",
 		"AREA:uptime_days#00BBEE:Uptime",
-		"GPRINT:uptime_days:LAST:\\nCurrent Uptime\\: %.0lf days\\n",
+		"GPRINT:uptime_days:LAST: Current Uptime\\: %.0lf days\\n",
 		#"LINE2:uptime_5#FF0000:Load Avg  (5 min)",
 		#"GPRINT:uptime_5:MAX:  Max\\: %5.1lf %S",
 		#"GPRINT:uptime_5:AVERAGE: Avg\\: %5.1lf %S",
