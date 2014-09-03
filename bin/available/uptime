@@ -39,10 +39,10 @@ if (! -e "$rrd") {
         "-s 60",
 	"DS:uptime:GAUGE:120:0:U",
 	"DS:idletime:GAUGE:120:0:U",
-	"RRA:MIN:0.5:1:2880",
-	"RRA:MIN:0.5:30:672",
-	"RRA:MIN:0.5:120:732",
-	"RRA:MIN:0.5:720:1460";
+	"RRA:AVERAGE:0.5:1:2880",
+	"RRA:AVERAGE:0.5:30:672",
+	"RRA:AVERAGE:0.5:120:732",
+	"RRA:AVERAGE:0.5:720:1460";
 }
 
 RRDs::update "$rrd",
@@ -67,7 +67,7 @@ sub CreateGraphs($){
 		"-l 0",
 		"-a", "PNG",
 		"-v uptime",
-		"DEF:uptime_secs=$rrd:uptime:MIN",
+		"DEF:uptime_secs=$rrd:uptime:AVERAGE",
 		"CDEF:uptime_days=uptime_secs,86400,/",
 		"-X 0",
 		"--lazy",
